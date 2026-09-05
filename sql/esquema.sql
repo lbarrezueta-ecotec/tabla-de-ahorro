@@ -1,0 +1,31 @@
+CREATE DATABASE IF NOT EXISTS integradora CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE integradora;
+
+CREATE TABLE IF NOT EXISTS salas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    codigo VARCHAR(20) UNIQUE NOT NULL,
+    url_unica VARCHAR(255) UNIQUE NOT NULL,
+    meta DECIMAL(10,2) DEFAULT 1500.00,
+    modo VARCHAR(10) DEFAULT 'individual', -- 'individual' | 'grupal'
+    creada_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sala_id INT NOT NULL,
+    nombre VARCHAR(50) NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS progreso (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sala_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    valor_ahorrado DECIMAL(10,2) DEFAULT 0,
+    casillas_marcadas INT DEFAULT 0,
+    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
