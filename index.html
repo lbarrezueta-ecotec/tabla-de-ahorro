@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Ahorro - Keyko y Luis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        /* Estilos para el login */
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(90deg, #ffb6c1 0%, #b0c4de 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-option {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        
+        .user-option:hover {
+            transform: scale(1.02);
+        }
+        
+        .user-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .user-option:hover .user-box {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .keyko-option:hover .user-box {
+            border-color: #ff69b4;
+        }
+        
+        .luis-option:hover .user-box {
+            border-color: #4169e1;
+        }
+        
+        .user-name {
+            font-size: 42px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .keyko-option .user-name {
+            color: #ff1493;
+        }
+        
+        .luis-option .user-name {
+            color: #1e90ff;
+        }
+        
+        .user-subtitle {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.5;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        /* Formulario para contraseña */
+        .password-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .password-form {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .password-title {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .password-subtitle {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 28px;
+            text-align: center;
+            letter-spacing: 10px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-family: monospace;
+            background-color: #f9f9f9;
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .password-error {
+            color: #e74c3c;
+            margin-bottom: 25px;
+            min-height: 24px;
+            font-size: 16px;
+        }
+        
+        .password-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .password-btn {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        
+        .password-btn.confirm {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .password-btn.confirm:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        
+        .password-btn.cancel {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .password-btn.cancel:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        /* Spinner de carga */
+        .spinner-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .spinner-text {
+            font-size: 18px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Estilos para la tabla de ahorro */
+        .savings-container {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .current-user {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .logout-btn {
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #34495e;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .progress-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            height: 30px;
+            background-color: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #e74c3c; /* Rojo por defecto */
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+        
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .savings-cell {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .savings-cell:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .savings-cell.checked {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        /* Animación para las casillas - SOLO AL MARCAR */
+        .savings-cell.animating {
+            animation: cashEffect 0.5s ease;
+        }
+        
+        @keyframes cashEffect {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+            }
+            25% {
+                transform: scale(1.1);
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(46, 204, 113, 0.7);
+            }
+            75% {
+                transform: scale(1.07);
+                box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+            }
+        }
+        
+        /* Efecto de partículas de dinero - SOLO AL MARCAR */
+        .money-particle {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: gold;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            animation: moneyFloat 1s ease-out forwards;
+        }
+        
+        @keyframes moneyFloat {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx, 0), var(--ty, -50px)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .summary {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+        
+        .summary h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2ecc71;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 992px) {
+            .login-container {
+                flex-direction: column;
+                background: linear-gradient(180deg, #ffb6c1 0%, #b0c4de 100%);
+            }
+            
+            .user-option {
+                padding: 40px 20px;
+            }
+            
+            .user-box {
+                max-width: 350px;
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .table-container {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 12px;
+            }
+            
+            .savings-cell {
+                padding: 15px;
+                font-size: 18px;
+            }
+            
+            .user-name {
+                font-size: 36px;
+            }
+            
+            .password-form {
+                padding: 30px;
+            }
+            
+            .spinner {
+                width: 50px;
+                height: 50px;
+                border-width: 5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .table-container {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+            }
+            
+            .savings-cell {
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .user-name {
+                font-size: 32px;
+            }
+            
+            .user-box {
+                padding: 25px;
+            }
+            
+            .password-buttons {
+                flex-direction: column;
+            }
+            
+            .password-btn {
+                width: 100%;
+            }
+            
+            .summary-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .stat {
+                min-width: 100%;
+            }
+            
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border-width: 4px;
+            }
+            
+            .spinner-text {
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .table-container {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 6px;
+            }
+            
+            .savings-cell {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .progress-text {
+                flex-direction: column;
+                gap: 5px;
+                font-size: 14px;
+            }
+            
+            .summary h3 {
+                font-size: 18px;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            .spinner {
+                width: 35px;
+                height: 35px;
+                border-width: 3px;
+            }
+            
+            .spinner-text {
+                font-size: 14px;
+            }
+        }
+    </style>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_tA0cJlLQTaLP_X0HBr07dtqKD1j8T38",
+            authDomain: "tabla-de-ahorro.firebaseapp.com",
+            projectId: "tabla-de-ahorro",
+            storageBucket: "tabla-de-ahorro.firebasestorage.app",
+            messagingSenderId: "617653135314",
+            appId: "1:617653135314:web:bb907b40ff2684dbb7ca0b",
+            measurementId: "G-E0KL13M8EE"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Make Firebase functions available globally
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+        window.firebaseDoc = doc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseUpdateDoc = updateDoc;
+    </script>
+</head>
+<body>
+    <!-- Pantalla de login -->
+    <div class="login-container" id="loginContainer">
+        <div class="user-option keyko-option" id="keykoOption">
+            <div class="user-box">
+                <div class="user-name">Keyko</div>
+                <div class="user-subtitle">Haz clic para acceder a tu tabla de ahorro personal</div>
+            </div>
+        </div>
+        
+        <div class="user-option luis-option" id="luisOption">
+            <div class="user-box">
+                <div class="user-name">Luis</div>
+                <div class="user-subtitle">Haz clic para acceder a tu tabla de ahorro personal</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Formulario para contraseña -->
+    <div class="password-container" id="passwordContainer" style="display: none;">
+        <div class="password-form">
+            <div class="password-title" id="passwordTitle">Establecer Contraseña</div>
+            <div class="password-subtitle" id="passwordSubtitle">Ingresa una contraseña de 4 dígitos para tu cuenta</div>
+            <input type="password" class="password-input" id="passwordInput" maxlength="4" pattern="\d{4}" inputmode="numeric">
+            <div class="password-error" id="passwordError"></div>
+            
+            <!-- Spinner de carga -->
+            <div class="spinner-container" id="spinnerContainer">
+                <div class="spinner"></div>
+                <div class="spinner-text" id="spinnerText">Cargando...</div>
+            </div>
+            
+            <div class="password-buttons">
+                <button class="password-btn confirm" id="confirmBtn">Confirmar</button>
+                <button class="password-btn cancel" id="cancelBtn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabla de ahorro (inicialmente oculta) -->
+    <div class="savings-container" id="savingsContainer">
+        <div class="header">
+            <div class="user-info">
+                <span class="current-user" id="currentUser">Keyko</span>
+            </div>
+            <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+        </div>
+        
+        <h1>Tabla de Ahorro hasta $1500</h1>
+        <p class="description">Valores de $5 a $50 en orden aleatorio. Haz clic en cada casilla para marcarla como ahorrada.</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span>Ahorrado: $<span id="savedAmount">0</span></span>
+                <span>Meta: $1500</span>
+            </div>
+        </div>
+        
+        <div class="table-container" id="savingsTable"></div>
+        
+        <div class="summary">
+            <h3>Resumen de Ahorros</h3>
+            <div class="summary-stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalCells">0</div>
+                    <div class="stat-label">Casillas completadas</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="remainingAmount">1500</div>
+                    <div class="stat-label">Faltante para la meta</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="percentComplete">0%</div>
+                    <div class="stat-label">Progreso total</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Elementos de audio (ocultos) -->
+    <audio id="loginSound" preload="auto">
+        <source src="https://luisbarrezuetagarin.github.io/sonidos-ahorro/mixkit-achievement-completed-2068.wav" type="audio/wav">
+    </audio>
+    
+    <audio id="checkSound" preload="auto">
+        <source src="https://luisbarrezuetagarin.github.io/sonidos-ahorro/mixkit-coins-handling-1939.wav" type="audio/wav">
+    </audio>
+    
+    <audio id="goalSound" preload="auto">
+        <source src="https://luisbarrezuetagarin.github.io/sonidos-ahorro/mixkit-achievement-bell-600.wav" type="audio/wav">
+    </audio>
+    
+    <!-- NO necesitamos el sonido de uncheck -->
+    
+    <script type="module">
+        // Variables globales
+        let selectedUser = null;
+        let isNewUser = false;
+        let currentSavings = 0;
+        let checkedCells = new Set();
+        let savingsValues = [];
+        let hasPlayedGoalSound = false; // Para evitar reproducir el sonido de meta múltiples veces
+        
+        // Elementos del DOM
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordError = document.getElementById('passwordError');
+        const passwordContainer = document.getElementById('passwordContainer');
+        const passwordTitle = document.getElementById('passwordTitle');
+        const passwordSubtitle = document.getElementById('passwordSubtitle');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const spinnerContainer = document.getElementById('spinnerContainer');
+        const spinnerText = document.getElementById('spinnerText');
+        
+        // Elementos de audio
+        const loginSound = document.getElementById('loginSound');
+        const checkSound = document.getElementById('checkSound');
+        const goalSound = document.getElementById('goalSound');
+        
+        // Configurar volúmenes de sonido
+        loginSound.volume = 0.5;
+        checkSound.volume = 0.4;
+        goalSound.volume = 0.6;
+        
+        // Mostrar spinner de carga
+        function showSpinner(text = "Cargando...") {
+            spinnerText.textContent = text;
+            spinnerContainer.style.display = 'flex';
+            confirmBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            passwordInput.disabled = true;
+        }
+        
+        // Ocultar spinner de carga
+        function hideSpinner() {
+            spinnerContainer.style.display = 'none';
+            confirmBtn.style.display = 'block';
+            cancelBtn.style.display = 'block';
+            passwordInput.disabled = false;
+        }
+        
+        // Reproducir sonido
+        function playSound(soundElement) {
+            try {
+                soundElement.currentTime = 0;
+                soundElement.play();
+            } catch (error) {
+                console.log("Error al reproducir sonido:", error);
+            }
+        }
+        
+        // Crear partículas de dinero - SOLO PARA MARCAR CASILLAS
+        function createMoneyParticles(element, count = 5) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'money-particle';
+                
+                // Posición aleatoria alrededor del elemento
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 20 + Math.random() * 30;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.left = `${rect.width / 2}px`;
+                particle.style.top = `${rect.height / 2}px`;
+                particle.style.setProperty('--tx', `${tx}px`);
+                particle.style.setProperty('--ty', `${ty}px`);
+                
+                // Tamaño y color aleatorio
+                const size = 5 + Math.random() * 10;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Color dorado con variación
+                const goldVariation = Math.random() * 30;
+                particle.style.backgroundColor = `rgb(255, ${215 + goldVariation}, 0)`;
+                
+                element.appendChild(particle);
+                
+                // Eliminar partícula después de la animación
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Aplicar animación a la casilla - SOLO AL MARCAR
+        function animateCell(cell) {
+            cell.classList.add('animating');
+            createMoneyParticles(cell, 3);
+            
+            // Remover la clase después de la animación
+            setTimeout(() => {
+                cell.classList.remove('animating');
+            }, 500);
+        }
+        
+        // Función para generar los valores iniciales de la tabla - CORREGIDA
+        function generateInitialValues() {
+            const values = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+            let result = [];
+            let total = 0;
+            let target = 1500;
+            
+            // Primero, creamos una distribución equitativa de valores
+            // Vamos a calcular cuántas veces necesitamos cada valor para llegar lo más cerca posible a 1500
+            
+            // Calculamos la suma de todos los valores de 5 a 50
+            const sumOfAllValues = values.reduce((a, b) => a + b, 0); // 275
+            
+            // Necesitamos aproximadamente 1500 / 275 ≈ 5.45 veces cada valor
+            // Vamos a usar 5 de cada valor (1375) y luego ajustar con valores específicos
+            let baseCount = 5;
+            
+            // Añadimos 5 de cada valor
+            for (let value of values) {
+                for (let i = 0; i < baseCount; i++) {
+                    result.push(value);
+                    total += value;
+                }
+            }
+            
+            // Ahora tenemos 50 valores que suman 1375
+            // Necesitamos añadir 125 más para llegar a 1500
+            
+            // Creamos un array de valores para completar los 125
+            let remaining = target - total; // 125
+            
+            // Distribuimos estos 125 de manera equitativa
+            // Usaremos valores que sumen exactamente 125
+            const remainingValues = [25, 25, 25, 25, 25]; // 5 * 25 = 125
+            
+            for (let value of remainingValues) {
+                result.push(value);
+                total += value;
+            }
+            
+            // Ahora tenemos 55 valores que suman exactamente 1500
+            // Mezclamos los valores aleatoriamente
+            return shuffleArray(result);
+        }
+        
+        // Función para verificar y ajustar valores si es necesario
+        function verifyAndAdjustValues(values) {
+            const total = values.reduce((sum, value) => sum + value, 0);
+            
+            // Si la suma no es exactamente 1500, ajustamos
+            if (total !== 1500) {
+                console.log(`Ajustando valores: suma actual = ${total}, objetivo = 1500`);
+                
+                const difference = 1500 - total;
+                
+                if (difference > 0) {
+                    // Necesitamos añadir valor
+                    // Buscamos un valor que se pueda dividir en múltiplos de 5
+                    let valueToAdd = Math.abs(difference);
+                    
+                    // Aseguramos que sea múltiplo de 5
+                    valueToAdd = Math.round(valueToAdd / 5) * 5;
+                    
+                    // Añadimos el valor ajustado
+                    values.push(valueToAdd);
+                    console.log(`Añadido valor: $${valueToAdd}`);
+                } else if (difference < 0) {
+                    // Necesitamos quitar valor
+                    // Buscamos el valor más cercano a la diferencia
+                    let valueToRemove = Math.abs(difference);
+                    
+                    // Encontramos y eliminamos un valor que sea igual o mayor a la diferencia
+                    for (let i = values.length - 1; i >= 0; i--) {
+                        if (values[i] >= valueToRemove) {
+                            console.log(`Eliminado valor: $${values[i]}`);
+                            values.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+                
+                // Recalculamos el total
+                const newTotal = values.reduce((sum, value) => sum + value, 0);
+                console.log(`Nueva suma: $${newTotal}`);
+            }
+            
+            return values;
+        }
+        
+        // Mezclar los valores aleatoriamente
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Verificar si el usuario existe en Firestore
+        async function checkUserExists(user) {
+            try {
+                const userRef = window.firebaseDoc(window.firebaseDb, "users", user);
+                const docSnap = await window.firebaseGetDoc(userRef);
+                return docSnap.exists();
+            } catch (error) {
+                console.error("Error al verificar usuario:", error);
+                return false;
+            }
+        }
+        
+        // Cargar datos del usuario desde Firestore
+        async function loadUserData(user) {
+            try {
+                const userRef = window.firebaseDoc(window.firebaseDb, "users", user);
+                const docSnap = await window.firebaseGetDoc(userRef);
+                if (docSnap.exists()) {
+                    return docSnap.data();
+                }
+                return null;
+            } catch (error) {
+                console.error("Error al cargar datos:", error);
+                return null;
+            }
+        }
+        
+        // Guardar datos del usuario en Firestore
+        async function saveUserData(user, data) {
+            try {
+                const userRef = window.firebaseDoc(window.firebaseDb, "users", user);
+                await window.firebaseSetDoc(userRef, data);
+                return true;
+            } catch (error) {
+                console.error("Error al guardar datos:", error);
+                return false;
+            }
+        }
+        
+        // Actualizar datos del usuario en Firestore
+        async function updateUserData(user, data) {
+            try {
+                const userRef = window.firebaseDoc(window.firebaseDb, "users", user);
+                await window.firebaseUpdateDoc(userRef, data);
+                return true;
+            } catch (error) {
+                console.error("Error al actualizar datos:", error);
+                return false;
+            }
+        }
+        
+        // Mostrar formulario de contraseña
+        async function showPasswordForm(user) {
+            selectedUser = user;
+            
+            const userExists = await checkUserExists(user);
+            isNewUser = !userExists;
+            
+            if (isNewUser) {
+                passwordTitle.textContent = `Crear Contraseña para ${user}`;
+                passwordSubtitle.textContent = 'Ingresa una contraseña de 4 dígitos para tu cuenta';
+            } else {
+                passwordTitle.textContent = `Ingresa tu Contraseña`;
+                passwordSubtitle.textContent = `Ingresa tu contraseña de 4 dígitos para acceder a la cuenta de ${user}`;
+            }
+            
+            passwordInput.value = '';
+            passwordError.textContent = '';
+            hideSpinner();
+            passwordContainer.style.display = 'flex';
+            passwordInput.focus();
+        }
+        
+        // Verificar contraseña
+        async function verifyPassword() {
+            const password = passwordInput.value;
+            
+            // Validar que sea de 4 dígitos
+            if (!/^\d{4}$/.test(password)) {
+                passwordError.textContent = 'La contraseña debe tener exactamente 4 dígitos';
+                return false;
+            }
+            
+            if (isNewUser) {
+                showSpinner("Creando cuenta...");
+                
+                // Generar valores iniciales para la tabla
+                let initialValues = generateInitialValues();
+                
+                // Verificar y ajustar si es necesario
+                initialValues = verifyAndAdjustValues(initialValues);
+                
+                // Verificar el total final
+                const totalSum = initialValues.reduce((sum, value) => sum + value, 0);
+                console.log(`${selectedUser}: Total generado: $${totalSum}`);
+                
+                // Guardar nuevo usuario en Firestore
+                const userData = {
+                    password: password,
+                    savings: 0,
+                    checkedCells: [],
+                    values: initialValues,
+                    lastLogin: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                };
+                
+                const success = await saveUserData(selectedUser, userData);
+                if (success) {
+                    return true;
+                } else {
+                    hideSpinner();
+                    passwordError.textContent = 'Error al crear la cuenta. Intenta nuevamente.';
+                    return false;
+                }
+            } else {
+                showSpinner("Verificando...");
+                
+                // Verificar contraseña existente
+                const userData = await loadUserData(selectedUser);
+                if (userData && userData.password === password) {
+                    // Actualizar última vez que inició sesión
+                    await updateUserData(selectedUser, { lastLogin: new Date().toISOString() });
+                    return true;
+                } else {
+                    hideSpinner();
+                    passwordError.textContent = 'Contraseña incorrecta. Intenta nuevamente.';
+                    return false;
+                }
+            }
+        }
+        
+        // Iniciar sesión
+        async function login() {
+            if (await verifyPassword()) {
+                showSpinner("Cargando tabla de ahorro...");
+                
+                // Mostrar nombre de usuario actual
+                document.getElementById('currentUser').textContent = selectedUser;
+                
+                // Cargar datos del usuario
+                const userData = await loadUserData(selectedUser);
+                
+                if (userData) {
+                    currentSavings = userData.savings || 0;
+                    checkedCells = new Set(userData.checkedCells || []);
+                    
+                    // Si el usuario no tiene valores en la base de datos, generarlos
+                    if (!userData.values || userData.values.length === 0) {
+                        savingsValues = generateInitialValues();
+                        // Verificar y ajustar si es necesario
+                        savingsValues = verifyAndAdjustValues(savingsValues);
+                        // Guardar los valores generados en Firestore
+                        await updateUserData(selectedUser, { values: savingsValues });
+                    } else {
+                        savingsValues = userData.values;
+                        
+                        // Verificar y ajustar si es necesario (para usuarios existentes)
+                        const totalSum = savingsValues.reduce((sum, value) => sum + value, 0);
+                        if (totalSum !== 1500) {
+                            console.log(`${selectedUser}: Valores existentes suman $${totalSum}, ajustando...`);
+                            savingsValues = verifyAndAdjustValues(savingsValues);
+                            await updateUserData(selectedUser, { values: savingsValues });
+                        }
+                    }
+                } else {
+                    // Esto no debería pasar, pero por si acaso
+                    currentSavings = 0;
+                    checkedCells = new Set();
+                    savingsValues = generateInitialValues();
+                    savingsValues = verifyAndAdjustValues(savingsValues);
+                }
+                
+                // Verificar el total final
+                const finalTotal = savingsValues.reduce((sum, value) => sum + value, 0);
+                console.log(`${selectedUser}: Total final de la tabla: $${finalTotal}`);
+                
+                // Ocultar formulario de contraseña y spinner
+                passwordContainer.style.display = 'none';
+                hideSpinner();
+                
+                // Reproducir sonido de inicio de sesión exitoso INMEDIATAMENTE
+                playSound(loginSound);
+                
+                // Mostrar tabla de ahorro
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('savingsContainer').style.display = 'block';
+                
+                // Reiniciar la bandera del sonido de meta
+                hasPlayedGoalSound = false;
+                
+                // Inicializar tabla
+                initializeTable();
+            }
+        }
+        
+        // Cerrar sesión
+        async function logout() {
+            // Guardar datos antes de cerrar sesión
+            const success = await updateUserData(selectedUser, {
+                savings: currentSavings,
+                checkedCells: Array.from(checkedCells),
+                values: savingsValues,
+                lastLogout: new Date().toISOString()
+            });
+            
+            if (success) {
+                console.log('Datos guardados exitosamente en Firestore');
+            }
+            
+            // Resetear variables
+            selectedUser = null;
+            currentSavings = 0;
+            checkedCells = new Set();
+            savingsValues = [];
+            hasPlayedGoalSound = false;
+            
+            // Mostrar login y ocultar tabla
+            document.getElementById('savingsContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'flex';
+        }
+        
+        // Inicializar la tabla
+        function initializeTable() {
+            const table = document.getElementById('savingsTable');
+            table.innerHTML = '';
+            
+            // Verificar que savingsValues tenga datos
+            if (!savingsValues || savingsValues.length === 0) {
+                console.error('No hay valores para mostrar en la tabla');
+                savingsValues = generateInitialValues();
+                savingsValues = verifyAndAdjustValues(savingsValues);
+            }
+            
+            // Calcular la suma total para depuración
+            const totalSum = savingsValues.reduce((sum, value) => sum + value, 0);
+            console.log(`${selectedUser}: Total de la tabla: $${totalSum}`);
+            
+            // Mostrar distribución de valores
+            const distribution = {};
+            savingsValues.forEach(value => {
+                distribution[value] = (distribution[value] || 0) + 1;
+            });
+            console.log('Distribución de valores:', distribution);
+            
+            savingsValues.forEach((value, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'savings-cell';
+                cell.textContent = `$${value}`;
+                cell.dataset.index = index;
+                cell.dataset.value = value;
+                
+                if (checkedCells.has(index)) {
+                    cell.classList.add('checked');
+                }
+                
+                cell.addEventListener('click', () => toggleCell(index));
+                table.appendChild(cell);
+            });
+            
+            updateProgress();
+        }
+        
+        // Alternar el estado de una celda
+        async function toggleCell(index) {
+            const cell = document.querySelector(`.savings-cell[data-index="${index}"]`);
+            const value = parseInt(cell.dataset.value);
+            
+            if (checkedCells.has(index)) {
+                // Preguntar confirmación al deseleccionar
+                if (confirm("¿Estás seguro que quieres deseleccionar esta casilla? Esto reducirá tu ahorro total.")) {
+                    // Desmarcar celda - SIN ANIMACIÓN Y SIN SONIDO
+                    checkedCells.delete(index);
+                    cell.classList.remove('checked');
+                    currentSavings -= value;
+                    updateProgress();
+                    
+                    // NO REPRODUCIR NINGÚN SONIDO AL DESELECCIONAR
+                    
+                    // NO APLICAR ANIMACIÓN NI PARTÍCULAS AL DESELECCIONAR
+                    
+                    // Guardar cambios en Firestore
+                    await updateUserData(selectedUser, {
+                        savings: currentSavings,
+                        checkedCells: Array.from(checkedCells)
+                    });
+                }
+            } else {
+                // Marcar celda - CON ANIMACIÓN Y SONIDO
+                checkedCells.add(index);
+                cell.classList.add('checked');
+                currentSavings += value;
+                updateProgress();
+                
+                // Reproducir sonido de marca
+                playSound(checkSound);
+                
+                // Aplicar animación y partículas
+                animateCell(cell);
+                
+                // Guardar cambios en Firestore
+                await updateUserData(selectedUser, {
+                    savings: currentSavings,
+                    checkedCells: Array.from(checkedCells)
+                });
+            }
+        }
+        
+        // Actualizar el progreso - CORRECCIÓN: Verde solo al 100%
+        function updateProgress() {
+            const savedAmountElement = document.getElementById('savedAmount');
+            const progressFillElement = document.getElementById('progressFill');
+            const totalCellsElement = document.getElementById('totalCells');
+            const remainingAmountElement = document.getElementById('remainingAmount');
+            const percentCompleteElement = document.getElementById('percentComplete');
+            
+            // Actualizar cantidad ahorrada
+            savedAmountElement.textContent = currentSavings;
+            
+            // Actualizar barra de progreso
+            const progressPercent = Math.min((currentSavings / 1500) * 100, 100);
+            progressFillElement.style.width = `${progressPercent}%`;
+            
+            // Actualizar estadísticas
+            totalCellsElement.textContent = checkedCells.size;
+            
+            const remaining = Math.max(1500 - currentSavings, 0);
+            remainingAmountElement.textContent = `$${remaining}`;
+            
+            percentCompleteElement.textContent = `${Math.round(progressPercent)}%`;
+            
+            // CORRECCIÓN: Cambiar color de la barra de progreso según el porcentaje
+            // Verde solo cuando alcance exactamente los $1500 (100%)
+            if (progressPercent >= 100) {
+                progressFillElement.style.backgroundColor = '#2ecc71'; // Verde solo al 100%
+                
+                // Reproducir sonido de meta solo una vez
+                if (!hasPlayedGoalSound) {
+                    playSound(goalSound);
+                    hasPlayedGoalSound = true;
+                }
+            } else if (progressPercent >= 75) {
+                progressFillElement.style.backgroundColor = '#3498db'; // Azul
+                hasPlayedGoalSound = false; // Resetear para poder reproducir de nuevo si baja
+            } else if (progressPercent >= 50) {
+                progressFillElement.style.backgroundColor = '#f39c12'; // Naranja
+                hasPlayedGoalSound = false;
+            } else {
+                progressFillElement.style.backgroundColor = '#e74c3c'; // Rojo
+                hasPlayedGoalSound = false;
+            }
+        }
+        
+        // Event Listeners
+        document.getElementById('keykoOption').addEventListener('click', () => {
+            showPasswordForm('Keyko');
+        });
+        
+        document.getElementById('luisOption').addEventListener('click', () => {
+            showPasswordForm('Luis');
+        });
+        
+        document.getElementById('confirmBtn').addEventListener('click', login);
+        
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            passwordContainer.style.display = 'none';
+            hideSpinner();
+            selectedUser = null;
+        });
+        
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+        
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        
+        // Permitir solo números en el campo de contraseña
+        document.getElementById('passwordInput').addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '');
+        });
+    </script>
+</body>
+</html>
