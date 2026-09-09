@@ -3,3 +3,5 @@
 /.node_modules/
 node_modules/
 .CLAUDE.md-local
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json
