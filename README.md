@@ -7,7 +7,6 @@ Aplicación web en **PHP + MySQL (MVC)** para gestionar retos de ahorro con una 
 ## Demo público
 
 - **Web:** https://tabla-ahorro.site.je
-- **Alternativa (InfinityFree):** http://if0-42868444.infinityfreeapp.com
 - **Repositorio:** https://github.com/lbarrezueta-ecotec/tabla-de-ahorro
 
 > Si ves un challenge `aes.js` la primera vez, es la protección anti-bot de InfinityFree: recargá en incógnito y entra normal.
