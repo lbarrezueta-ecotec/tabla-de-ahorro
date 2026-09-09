@@ -21,26 +21,35 @@ class UsuarioController
         $contrasena = $_POST['contrasena'] ?? '';
         $salaId = (int) ($_POST['sala_id'] ?? 0);
 
+        // Obtener código de sala para redirección correcta
+        $sala = $salaId ? $this->salaModel->obtenerPorId($salaId) : null;
+        if (!$sala) {
+            header('Location: ../../index.php?error=datos_invalidos');
+            exit;
+        }
+        $codigo = $sala['codigo'];
+        $baseRedirect = '../views/salas/sala.php?codigo=' . urlencode($codigo);
+
         // Validaciones
-        if (empty($nombre) || empty($contrasena) || $salaId <= 0) {
-            header('Location: ../views/salas/?error=datos_invalidos');
+        if (empty($nombre) || empty($contrasena)) {
+            header('Location: ' . $baseRedirect . '&error=datos_invalidos');
             exit;
         }
         if (strlen($nombre) < 3 || strlen($nombre) > 50) {
-            header('Location: ../views/salas/?error=nombre_invalido');
+            header('Location: ' . $baseRedirect . '&error=nombre_invalido');
             exit;
         }
         if (strlen($contrasena) < 4) {
-            header('Location: ../views/salas/?error=contrasena_corta');
+            header('Location: ' . $baseRedirect . '&error=contrasena_corta');
             exit;
         }
 
         if ($this->usuarioModel->crear($salaId, $nombre, $contrasena)) {
-            header('Location: ../views/salas/?registro=ok&sala_id=' . $salaId);
+            header('Location: ' . $baseRedirect . '&registro=ok');
             exit;
         }
 
-        header('Location: ../views/salas/?error=registro_fallido');
+        header('Location: ' . $baseRedirect . '&error=registro_fallido');
         exit;
     }
 
@@ -51,14 +60,22 @@ class UsuarioController
         $contrasena = $_POST['contrasena'] ?? '';
         $salaId = (int) ($_POST['sala_id'] ?? 0);
 
-        if (empty($nombre) || empty($contrasena) || $salaId <= 0) {
-            header('Location: ../views/salas/?error=campos_vacios');
+        $sala = $salaId ? $this->salaModel->obtenerPorId($salaId) : null;
+        if (!$sala) {
+            header('Location: ../../index.php?error=datos_invalidos');
+            exit;
+        }
+        $codigo = $sala['codigo'];
+        $baseRedirect = '../views/salas/sala.php?codigo=' . urlencode($codigo);
+
+        if (empty($nombre) || empty($contrasena)) {
+            header('Location: ' . $baseRedirect . '&error=campos_vacios');
             exit;
         }
 
         $usuarioId = $this->usuarioModel->verificar($salaId, $nombre, $contrasena);
         if ($usuarioId) {
-            session_start();
+            if (session_status() !== PHP_SESSION_ACTIVE) session_start();
             $_SESSION['usuario_id'] = $usuarioId;
             $_SESSION['usuario_nombre'] = $nombre;
             $_SESSION['sala_id'] = $salaId;
@@ -66,16 +83,31 @@ class UsuarioController
             exit;
         }
 
-        header('Location: ../views/salas/?error=login_fallido&sala_id=' . $salaId);
+        header('Location: ' . $baseRedirect . '&error=login_fallido');
         exit;
     }
 
     // Logout
     public function logout(): void
     {
-        session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
         session_destroy();
-        header('Location: ../');
+        // Redirige a la landing, funciona tanto vía index.php como vía directa
+        if (strpos($_SERVER['SCRIPT_NAME'] ?? '', 'index.php') !== false) {
+            header('Location: index.php');
+        } else {
+            header('Location: ../../index.php');
+        }
         exit;
     }
+}
+
+// Soporte para acceso directo al controlador (compatibilidad con vistas que usan controllers/UsuarioController.php)
+if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'UsuarioController.php' && isset($_GET['action'])) {
+    require_once __DIR__ . '/../config/conexion.php';
+    $ctrl = new UsuarioController($pdo ?? null);
+    $action = $_GET['action'] ?? '';
+    if ($action === 'registrar') $ctrl->registrar();
+    if ($action === 'login') $ctrl->login();
+    if ($action === 'logout') $ctrl->logout();
 }
